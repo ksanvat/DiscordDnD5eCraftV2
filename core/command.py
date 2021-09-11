@@ -14,7 +14,7 @@ class Command:
     def __init__(self) -> None:
         pass
 
-    def run(self) -> str:
+    def run(self, ctx: business.Context) -> str:
         raise NotImplementedError()
 
 
@@ -35,7 +35,7 @@ class HelpCommand(Command):
         super().__init__()
         self._used_intentionally = used_intentionally
 
-    def run(self) -> str:
+    def run(self, ctx: business.Context) -> str:
         msg = []
 
         if self._used_intentionally:
@@ -63,7 +63,7 @@ class CommandWithTag(Command):
         except:
             self.tag = types.ItemTags(universal=True)
 
-    def run(self) -> str:
+    def run(self, ctx: business.Context) -> str:
         raise NotImplementedError()
 
 
@@ -79,40 +79,44 @@ class CommandWithTagXN(Command):
         except:
             self._n = 1
 
-    def run(self) -> str:
+    def run(self, ctx: business.Context) -> str:
         if self._n == 1:
-            return self._run_one()
+            return self._run_one(ctx)
 
-        result = [self._run_one() for _ in range(self._n)]
+        result = [self._run_one(ctx) for _ in range(self._n)]
         return '\n'.join(f'{i}. {m}' for i, m in enumerate(result, 1))
 
-    def _run_one(self) -> str:
+    def _run_one(self, ctx: business.Context) -> str:
         raise NotImplementedError()
+
+    @property
+    def _tag(self) -> types.ItemTags:
+        return self._cmd_with_tag.tag
 
 
 class PrefixCommand(CommandWithTagXN):
-    def _run_one(self) -> str:
-        return str(business.roll_prefix(self._cmd_with_tag.tag))
+    def _run_one(self, ctx: business.Context) -> str:
+        return str(business.roll_prefix(ctx, self._tag))
 
 
 class SuffixCommand(CommandWithTagXN):
-    def _run_one(self) -> str:
-        return str(business.roll_suffix(self._cmd_with_tag.tag))
+    def _run_one(self, ctx: business.Context) -> str:
+        return str(business.roll_suffix(ctx, self._tag))
 
 
 class ImplicitCommand(CommandWithTagXN):
-    def _run_one(self) -> str:
-        return str(business.roll_implicit(self._cmd_with_tag.tag))
+    def _run_one(self, ctx: business.Context) -> str:
+        return str(business.roll_implicit(ctx, self._tag))
 
 
 class SlotCommand(CommandWithTagXN):
-    def _run_one(self) -> str:
-        return str(business.roll_slot(self._cmd_with_tag.tag))
+    def _run_one(self, ctx: business.Context) -> str:
+        return str(business.roll_slot(ctx, self._tag))
 
 
 class CommandForItem(CommandWithTag):
-    def run(self) -> str:
-        result = [business.roll_slot(self.tag) for _ in range(self._slots_count())]
+    def run(self, ctx: business.Context) -> str:
+        result = [business.roll_slot(ctx, self.tag) for _ in range(self._slots_count())]
         result.sort(key=lambda s: s.slot_type.value)
         return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
@@ -136,7 +140,10 @@ class VeryRareItemCommand(CommandForItem):
 
 
 class ResourcesCommand(Command):
-    def run(self) -> str:
+    def __init__(self, args: List[str]) -> None:
+        super().__init__()
+
+    def run(self, ctx: business.Context) -> str:
         msg = [
             'Сфера перемен: `&@%#&@#%&@&^@#@*(#&($`',
             'Сфера активных перемен: `#(*&#(*@(*%&(*!(`',

@@ -1,6 +1,7 @@
 import random
 
 from typing import List
+from typing import Set
 
 from core import types
 from core.db import implicits as db_implicits
@@ -13,47 +14,55 @@ class LogicError(Exception):
     pass
 
 
-def roll_prefix(tags: types.ItemTags) -> types.Property:
-    groups = _matched_groups(db_prefixes.DATA, tags)
+class Context:
+    def __init__(self) -> None:
+        self.implicit_used: Set[str] = set()
+
+
+def roll_prefix(ctx: Context, tags: types.ItemTags) -> types.Property:
+    groups = _matched_groups(db_prefixes.DATA, tags, set())
     if not groups:
         raise LogicError('Подходящих префиксов не найдено')
 
     return random.choice(groups).roll_args(types.SlotType.Prefix)
 
 
-def roll_suffix(tags: types.ItemTags) -> types.Property:
-    groups = _matched_groups(db_suffixes.DATA, tags)
+def roll_suffix(ctx: Context, tags: types.ItemTags) -> types.Property:
+    groups = _matched_groups(db_suffixes.DATA, tags, set())
     if not groups:
         raise LogicError('Подходящих суффиксов не найдено')
 
     return random.choice(groups).roll_args(types.SlotType.Suffix)
 
 
-def roll_implicit(tags: types.ItemTags) -> types.Property:
-    groups = _matched_groups(db_implicits.DATA, tags)
+def roll_implicit(ctx: Context, tags: types.ItemTags) -> types.Property:
+    groups = _matched_groups(db_implicits.DATA, tags, ctx.implicit_used)
     if not groups:
         raise LogicError('Подходящих собственных свойств не найдено')
 
-    return random.choice(groups).roll_args(types.SlotType.Implicit)
+    chosen_group = random.choice(groups)
+    ctx.implicit_used.add(chosen_group.internal_id)
+
+    return chosen_group.roll_args(types.SlotType.Implicit)
 
 
-def roll_slot(tags: types.ItemTags) -> types.Property:
+def roll_slot(ctx: Context, tags: types.ItemTags) -> types.Property:
     slot_type = _choice_slot(db_slots.DATA)
 
     if slot_type == types.SlotType.Prefix:
-        return roll_prefix(tags)
+        return roll_prefix(ctx, tags)
 
     if slot_type == types.SlotType.Suffix:
-        return roll_suffix(tags)
+        return roll_suffix(ctx, tags)
 
     if slot_type == types.SlotType.Implicit:
-        return roll_implicit(tags)
+        return roll_implicit(ctx, tags)
 
     raise Exception('Unknown Slot Type')
 
 
-def _matched_groups(groups: List[types.Group], tags: types.ItemTags) -> List[types.Group]:
-    return [g for g in groups if g.matches(tags)]
+def _matched_groups(groups: List[types.Group], tags: types.ItemTags, skip_id: Set[str]) -> List[types.Group]:
+    return [g for g in groups if g.matches(tags) and g.internal_id not in skip_id]
 
 
 def _choice_slot(slots: List[types.Slot]) -> types.SlotType:

@@ -28,7 +28,7 @@ class Client(discord.Client):
         try:
             cmd = command.parse(message.content)
             if cmd is not None:
-                answer = cmd.run()
+                answer = cmd.run(business.Context())
                 await message.reply(answer)
         except business.LogicError as exc:
             await message.reply(str(exc))

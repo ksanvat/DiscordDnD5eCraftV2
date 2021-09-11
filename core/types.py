@@ -1,6 +1,8 @@
 import enum
 import random
+import uuid
 
+from typing import Any
 from typing import List
 
 
@@ -50,9 +52,18 @@ class Property:
 
 class Group:
     def __init__(self, tags: ItemTags, type_args: List[str], value_args: List[str]) -> None:
+        internal_id = uuid.uuid4()
+        if not internal_id.is_safe:
+            raise Exception('InternalID is unsafe')
+
+        self._internal_id = str(internal_id)
         self._tags = tags
         self._type_args = type_args
         self._value_args = value_args
+
+    @property
+    def internal_id(self) -> str:
+        return self._internal_id
 
     def matches(self, other: ItemTags) -> bool:
         return self._tags.matches(other)
