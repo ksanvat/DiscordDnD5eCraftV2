@@ -9,7 +9,7 @@ class ItemTags:
             self,
             universal: bool = False,
             weapon: bool = False,
-            armor: bool = False
+            armor: bool = False,
     ) -> None:
         self._universal = universal
 
