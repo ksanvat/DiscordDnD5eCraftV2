@@ -273,7 +273,8 @@ def _parse_tag(tag: str) -> types.ItemTags:
 
 
 def _parse_xn(xn: str) -> int:
-    if not xn.startswith('x'):
+    # english and russian "x"
+    if not (xn.startswith('x') or xn.startswith('х')):
         raise ParseError()
 
     n = int(xn[1:])
