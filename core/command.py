@@ -105,9 +105,9 @@ class ImplicitCommand(CommandWithTagXN):
         return str(business.roll_implicit(self._cmd_with_tag.tag))
 
 
-class SlotCommand(CommandWithTag):
-    def run(self) -> str:
-        return str(business.roll_slot(self.tag))
+class SlotCommand(CommandWithTagXN):
+    def _run_one(self) -> str:
+        return str(business.roll_slot(self._cmd_with_tag.tag))
 
 
 class CommandForItem(CommandWithTag):
