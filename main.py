@@ -2,7 +2,11 @@ import os
 
 import discord
 
-from core import command
+try:
+    from core import command
+    FATAL_STATE = False
+except:
+    FATAL_STATE = True
 
 
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -14,6 +18,10 @@ class Client(discord.Client):
 
     async def on_message(self, message) -> None:
         if message.author == self.user:
+            return
+
+        if FATAL_STATE:
+            await message.reply('Критическая ошибка(')
             return
 
         try:
