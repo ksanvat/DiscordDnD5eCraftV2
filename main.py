@@ -3,8 +3,8 @@ import os
 import discord
 
 try:
-    from core import command
     from core import business
+    from core import command
     FATAL_STATE = False
 except:
     FATAL_STATE = True
