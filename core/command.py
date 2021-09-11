@@ -1,5 +1,7 @@
 from typing import Optional
 
+from core import business
+
 
 class NotABotCommand(Exception):
     pass
@@ -20,17 +22,21 @@ class Command:
 class HelpCommand(Command):
     COMMON_COMMANDS = [
         'префикс',
+        'префикс оружие',
+        'префикс броня',
         'суффикс',
+        'суффикс оружие',
+        'суффикс броня',
     ]
 
-    def __init__(self, *, intentional_usage: bool) -> None:
+    def __init__(self, *, used_intentionally: bool) -> None:
         super().__init__()
-        self.intentional_usage = intentional_usage
+        self._used_intentionally = used_intentionally
 
     def run(self) -> str:
         msg = []
 
-        if self.intentional_usage:
+        if self._used_intentionally:
             msg.append('Я создан для помощи в крафте предметов')
         else:
             msg.append(f'Не понял тебя :(')
@@ -46,8 +52,12 @@ class HelpCommand(Command):
 
 
 class PrefixCommand(Command):
+    def __init__(self, tag: Optional[str] = None) -> None:
+        super().__init__()
+        self._tag = _parse_tag(tag)
+
     def run(self) -> str:
-        return '<PrefixObject>'
+        return business.roll_prefix(self._tag)
 
 
 class SuffixCommand(Command):
@@ -71,7 +81,7 @@ def parse(cmd: str) -> Optional[Command]:
 
 def _create_cmd(cmd: str) -> Command:
     if not cmd:
-        return HelpCommand(intentional_usage=True)
+        return HelpCommand(used_intentionally=True)
 
     possible_cmd = cmd.strip().lower().split()
     possible_args = []
@@ -83,9 +93,22 @@ def _create_cmd(cmd: str) -> Command:
             try:
                 return cls(*possible_args)
             except:
-                return HelpCommand(intentional_usage=False)
+                return HelpCommand(used_intentionally=False)
 
         last_arg = possible_cmd.pop()
         possible_args.insert(0, last_arg)
 
-    return HelpCommand(intentional_usage=False)
+    return HelpCommand(used_intentionally=False)
+
+
+def _parse_tag(tag: Optional[str]) -> business.Tags:
+    if tag is None:
+        return business.Tags(universal=True)
+
+    if tag in {'оружие', 'оружия'}:
+        return business.Tags(weapon=True)
+
+    if tag in {'броня', 'брони'}:
+        return business.Tags(armor=True)
+
+    raise ParseError()

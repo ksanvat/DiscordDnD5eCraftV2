@@ -18,8 +18,9 @@ class Client(discord.Client):
 
         try:
             cmd = command.parse(message.content)
-            answer = cmd.run()
-            await message.reply(answer)
+            if cmd is not None:
+                answer = cmd.run()
+                await message.reply(answer)
         except:
             await message.reply('Я сломался(')
 
