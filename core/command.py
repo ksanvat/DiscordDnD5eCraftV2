@@ -58,7 +58,7 @@ class PrefixCommand(Command):
         self._tag = _parse_tag(tag)
 
     def run(self) -> str:
-        return business.roll_prefix(self._tag)
+        return str(business.roll_prefix(self._tag))
 
 
 class SuffixCommand(Command):
@@ -102,14 +102,14 @@ def _create_cmd(cmd: str) -> Command:
     return HelpCommand(used_intentionally=False)
 
 
-def _parse_tag(tag: Optional[str]) -> types.Tags:
+def _parse_tag(tag: Optional[str]) -> types.ItemTags:
     if tag is None:
-        return types.Tags(universal=True)
+        return types.ItemTags(universal=True)
 
     if tag in {'оружие', 'оружия'}:
-        return types.Tags(weapon=True)
+        return types.ItemTags(weapon=True)
 
     if tag in {'броня', 'брони'}:
-        return types.Tags(armor=True)
+        return types.ItemTags(armor=True)
 
     raise ParseError()
