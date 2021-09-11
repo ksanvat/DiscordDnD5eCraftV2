@@ -29,7 +29,8 @@ class HelpCommand(Command):
         'слот [оружие|броня]',
         'префикс [оружие|броня]',
         'суффикс [оружие|броня]',
-        'собственное свойство [оружия|брони]'
+        'собственное свойство [оружия|брони]',
+        'ресурсы',
     ]
 
     def __init__(self, *, used_intentionally: bool) -> None:
@@ -113,6 +114,21 @@ class VeryRareItemCommand(CommandForItem):
         return 4
 
 
+class ResourcesCommand(Command):
+    def run(self) -> str:
+        msg = [
+            'Сфера перемен: &@%#&@#%&@&^@#@*(#&($',
+            'Сфера активных перемен: #(*&#(*@(*%&(*!(',
+            'Сфера пассивных перемен: @#)%*@#)%&*(#!@&$!#(',
+            'Сфера очищения: #&@*%(@*$&!)$!*(!@#$',
+            'Сфера царей: )#!*@)!#$)*!(&%#)!(*#&!',
+            'Сфера божества: "!№%*%)(!"*%*)!()#!*#!$)$!*)(',
+            'Сфера...',
+        ]
+
+        return '\n\n'.join(f'- {row}' for row in msg)
+
+
 COMMAND_PREFIX = '!'
 COMMAND_MAPPING = {
     'префикс': PrefixCommand,
@@ -129,6 +145,8 @@ COMMAND_MAPPING = {
     'очень редкий': VeryRareItemCommand,
     'очень редкая': VeryRareItemCommand,
     'очень редкое': VeryRareItemCommand,
+    'ресурс': ResourcesCommand,
+    'ресурсы': ResourcesCommand,
 }
 
 
