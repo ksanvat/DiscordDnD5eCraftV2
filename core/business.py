@@ -40,7 +40,7 @@ class Tags:
 
 
 class Group:
-    def __init__(self, name: str, tags: Tags, args: List[List[str]]) -> None:
+    def __init__(self, name: str, tags: Tags, args: List) -> None:
         self._name = name
         self._tags = tags
         self._args = args
@@ -48,7 +48,7 @@ class Group:
     def tags_matches(self, other: Tags) -> bool:
         return self._tags.matches(other)
 
-    def roll_args(self, **kwargs: str) -> str:
+    def roll_args(self) -> str:
         result = []
 
         for arg_group in self._args:
@@ -59,7 +59,7 @@ class Group:
             else:
                 raise LogicError()
 
-        return ' '.join(result).format(**kwargs)
+        return ' '.join(result)
 
 
 PREFIXES = [
@@ -82,11 +82,11 @@ PREFIXES = [
                 'Некротическое',
                 'Психическое',
             ],
-            '{tag}',
+            'Оружие',
             [
-                '2',
-                '4',
-                '6',
+                '2 [dmg]',
+                '4 [dmg]',
+                '6 [dmg]',
             ],
         ],
     ),
@@ -109,11 +109,11 @@ PREFIXES = [
                 'Некротическое',
                 'Психическое',
             ],
-            '{tag}',
+            'Оружие',
             [
-                '1d2',
-                '1d4',
-                '1d6',
+                '1d2 [dmg]',
+                '1d4 [dmg]',
+                '1d6 [dmg]',
             ],
         ],
     ),
@@ -123,4 +123,4 @@ PREFIXES = [
 def roll_prefix(tags: Tags) -> str:
     matching_groups = [g for g in PREFIXES if g.tags_matches(tags)]
     group = random.choice(matching_groups)
-    return group.roll_args(tag=str(tags))
+    return group.roll_args()
