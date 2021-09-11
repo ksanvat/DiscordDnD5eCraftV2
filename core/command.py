@@ -21,7 +21,7 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.0.2'
+    VERSION = '0.0.3'
     COMMON_COMMANDS = [
         'необычное [оружие|броня]',
         'редкое [оружие|броня]',
