@@ -1,7 +1,10 @@
 import random
 
-from typing import Any
 from typing import List
+
+
+class LogicError(Exception):
+    pass
 
 
 class Tags:
@@ -25,6 +28,16 @@ class Tags:
 
         return bool(self._tags & other._tags)
 
+    def __str__(self) -> str:
+        if self._universal or not self._tags:
+            return 'X'
+
+        if len(self._tags) == 1:
+            for tag in self._tags:
+                return tag
+
+        return str(self._tags)
+
 
 class Group:
     def __init__(self, name: str, tags: Tags, args: List[List[str]]) -> None:
@@ -35,13 +48,18 @@ class Group:
     def tags_matches(self, other: Tags) -> bool:
         return self._tags.matches(other)
 
-    def roll_args(self) -> str:
+    def roll_args(self, **kwargs: str) -> str:
         result = []
 
         for arg_group in self._args:
-            result.append(random.choice(arg_group))
+            if isinstance(arg_group, str):
+                result.append(arg_group)
+            elif isinstance(arg_group, list):
+                result.append(random.choice(arg_group))
+            else:
+                raise LogicError()
 
-        return ' '.join(result)
+        return ' '.join(result).format(**kwargs)
 
 
 PREFIXES = [
@@ -50,20 +68,21 @@ PREFIXES = [
         tags=Tags(weapon=True),
         args=[
             [
-                'Колющий',
-                'Режущий',
-                'Дробящий',
-                'Огненный',
-                'Холодом',
-                'Молнией',
-                'Звуком',
-                'Кислотный',
-                'Ядовитый',
-                'Силовой',
-                'Излучением',
-                'Некротический',
-                'Психический',
+                'Колющее',
+                'Режущее',
+                'Дробящее',
+                'Огненное',
+                'Ледяное',
+                'Электрическое',
+                'Звуковое',
+                'Кислотное',
+                'Ядовитое',
+                'Силовое',
+                'Излучающее',
+                'Некротическое',
+                'Психическое',
             ],
+            '{tag}',
             [
                 '2',
                 '4',
@@ -76,20 +95,21 @@ PREFIXES = [
         tags=Tags(weapon=True),
         args=[
             [
-                'Колющий',
-                'Режущий',
-                'Дробящий',
-                'Огненный',
-                'Холодом',
-                'Молнией',
-                'Звуком',
-                'Кислотный',
-                'Ядовитый',
-                'Силовой',
-                'Излучением',
-                'Некротический',
-                'Психический',
+                'Колющее',
+                'Режущее',
+                'Дробящее',
+                'Огненное',
+                'Ледяное',
+                'Электрическое',
+                'Звуковое',
+                'Кислотное',
+                'Ядовитое',
+                'Силовое',
+                'Излучающее',
+                'Некротическое',
+                'Психическое',
             ],
+            '{tag}',
             [
                 '1d2',
                 '1d4',
@@ -103,4 +123,4 @@ PREFIXES = [
 def roll_prefix(tags: Tags) -> str:
     matching_groups = [g for g in PREFIXES if g.tags_matches(tags)]
     group = random.choice(matching_groups)
-    return group.roll_args()
+    return group.roll_args(tag=str(tags))
