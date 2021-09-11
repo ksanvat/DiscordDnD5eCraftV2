@@ -17,7 +17,7 @@ def roll_prefix(tags: types.ItemTags) -> types.Property:
     if not groups:
         raise LogicError('Подходящих префиксов не найдено')
 
-    return random.choice(groups).roll_args()
+    return random.choice(groups).roll_args(types.SlotType.Prefix)
 
 
 def roll_suffix(tags: types.ItemTags) -> types.Property:
@@ -25,7 +25,7 @@ def roll_suffix(tags: types.ItemTags) -> types.Property:
     if not groups:
         raise LogicError('Подходящих суффиксов не найдено')
 
-    return random.choice(groups).roll_args()
+    return random.choice(groups).roll_args(types.SlotType.Suffix)
 
 
 def roll_slot(tags: types.ItemTags) -> types.Property:

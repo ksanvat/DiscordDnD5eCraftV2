@@ -81,11 +81,12 @@ class CommandForItem(CommandWithTag):
     def run(self) -> str:
         result = []
 
-        for i in range(self._slots_count()):
-            slot = business.roll_slot(self._tag)
-            result.append(f'{i+1}. {slot}')
+        for _ in range(self._slots_count()):
+            result.append(business.roll_slot(self._tag))
 
-        return '\n'.join(result)
+        result.sort(key=lambda s: s.slot_type.value)
+
+        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result))
 
     def _slots_count(self) -> int:
         raise NotImplementedError()

@@ -26,10 +26,10 @@ class ItemTags:
         return bool(self._tags & other._tags)
 
 
-class SlotType(enum.Enum):
-    Prefix = enum.auto()
-    Suffix = enum.auto()
-    Implicit = enum.auto()
+class SlotType(enum.IntEnum):
+    Prefix = 100
+    Suffix = 200
+    Implicit = 300
 
 
 class Slot:
@@ -39,9 +39,10 @@ class Slot:
 
 
 class Property:
-    def __init__(self, name: str, value: str) -> None:
+    def __init__(self, name: str, value: str, slot_type: SlotType) -> None:
         self.name = name
         self.value = value
+        self.slot_type = slot_type
 
     def __str__(self) -> str:
         return f'{self.name}: {self.value}'
@@ -56,8 +57,9 @@ class Group:
     def matches(self, other: ItemTags) -> bool:
         return self._tags.matches(other)
 
-    def roll_args(self) -> Property:
+    def roll_args(self, slot_type: SlotType) -> Property:
         return Property(
             name=random.choice(self._type_args),
             value=random.choice(self._value_args),
+            slot_type=slot_type,
         )
