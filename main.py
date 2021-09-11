@@ -4,6 +4,7 @@ import discord
 
 try:
     from core import command
+    from core import business
     FATAL_STATE = False
 except:
     FATAL_STATE = True
@@ -29,6 +30,8 @@ class Client(discord.Client):
             if cmd is not None:
                 answer = cmd.run()
                 await message.reply(answer)
+        except business.LogicError as exc:
+            await message.reply(str(exc))
         except:
             await message.reply('Я сломался(')
 

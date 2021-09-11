@@ -23,6 +23,9 @@ class Command:
 class HelpCommand(Command):
     VERSION = '0.0.1'
     COMMON_COMMANDS = [
+        'слот',
+        'слот оружие',
+        'слот броня',
         'префикс',
         'префикс оружие',
         'префикс броня',
@@ -84,6 +87,7 @@ COMMAND_PREFIX = '!'
 COMMAND_MAPPING = {
     'префикс': PrefixCommand,
     'суффикс': SuffixCommand,
+    'слот': SlotCommand,
 }
 
 
