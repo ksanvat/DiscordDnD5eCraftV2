@@ -78,31 +78,32 @@ class SlotCommand(CommandWithTag):
 
 
 class CommandForItem(CommandWithTag):
-    SLOTS = 0
-
     def run(self) -> str:
-        if not self.SLOTS:
-            raise Exception('Slots Count Error')
-
         result = []
 
-        for i in range(2):
+        for i in range(self._slots_count()):
             slot = business.roll_slot(self._tag)
             result.append(f'{i+1}. {slot}')
 
         return '\n'.join(result)
 
+    def _slots_count(self) -> int:
+        raise NotImplementedError()
+
 
 class UncommonItemCommand(CommandForItem):
-    SLOTS = 2
+    def _slots_count(self) -> int:
+        return 2
 
 
 class RareItemCommand(CommandForItem):
-    SLOTS = 3
+    def _slots_count(self) -> int:
+        return 3
 
 
 class VeryRareItemCommand(CommandForItem):
-    SLOTS = 4
+    def _slots_count(self) -> int:
+        return 4
 
 
 COMMAND_PREFIX = '!'
