@@ -29,6 +29,7 @@ class HelpCommand(Command):
         'слот [оружие|броня]',
         'префикс [оружие|броня]',
         'суффикс [оружие|броня]',
+        'собственное свойство [оружия|брони]'
     ]
 
     def __init__(self, *, used_intentionally: bool) -> None:
@@ -72,6 +73,11 @@ class SuffixCommand(CommandWithTag):
         return str(business.roll_suffix(self._tag))
 
 
+class ImplicitCommand(CommandWithTag):
+    def run(self) -> str:
+        return str(business.roll_implicit(self._tag))
+
+
 class SlotCommand(CommandWithTag):
     def run(self) -> str:
         return str(business.roll_slot(self._tag))
@@ -111,6 +117,8 @@ COMMAND_PREFIX = '!'
 COMMAND_MAPPING = {
     'префикс': PrefixCommand,
     'суффикс': SuffixCommand,
+    'собственное': ImplicitCommand,
+    'собственное свойство': ImplicitCommand,
     'слот': SlotCommand,
     'необычный': UncommonItemCommand,
     'необычная': UncommonItemCommand,

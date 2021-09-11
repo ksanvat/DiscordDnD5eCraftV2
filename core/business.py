@@ -3,6 +3,7 @@ import random
 from typing import List
 
 from core import types
+from core.db import implicits as db_implicits
 from core.db import prefixes as db_prefixes
 from core.db import slots as db_slots
 from core.db import suffixes as db_suffixes
@@ -28,6 +29,14 @@ def roll_suffix(tags: types.ItemTags) -> types.Property:
     return random.choice(groups).roll_args(types.SlotType.Suffix)
 
 
+def roll_implicit(tags: types.ItemTags) -> types.Property:
+    groups = _matched_groups(db_implicits.DATA, tags)
+    if not groups:
+        raise LogicError('Подходящих собственных свойств не найдено')
+
+    return random.choice(groups).roll_args(types.SlotType.Implicit)
+
+
 def roll_slot(tags: types.ItemTags) -> types.Property:
     slot_type = _choice_slot(db_slots.DATA)
 
@@ -36,6 +45,9 @@ def roll_slot(tags: types.ItemTags) -> types.Property:
 
     if slot_type == types.SlotType.Suffix:
         return roll_suffix(tags)
+
+    if slot_type == types.SlotType.Implicit:
+        return roll_implicit(tags)
 
     raise Exception('Unknown Slot Type')
 
