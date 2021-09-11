@@ -1,6 +1,7 @@
 from typing import Optional
 
 from core import business
+from core import types
 
 
 class NotABotCommand(Exception):
@@ -101,14 +102,14 @@ def _create_cmd(cmd: str) -> Command:
     return HelpCommand(used_intentionally=False)
 
 
-def _parse_tag(tag: Optional[str]) -> business.Tags:
+def _parse_tag(tag: Optional[str]) -> types.Tags:
     if tag is None:
-        return business.Tags(universal=True)
+        return types.Tags(universal=True)
 
     if tag in {'оружие', 'оружия'}:
-        return business.Tags(weapon=True)
+        return types.Tags(weapon=True)
 
     if tag in {'броня', 'брони'}:
-        return business.Tags(armor=True)
+        return types.Tags(armor=True)
 
     raise ParseError()
