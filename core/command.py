@@ -19,12 +19,12 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.14'
+    VERSION = '0.15'
     COMMON_COMMANDS = [
-        'предмет [оружие|броня|кольцо]',
-        'необычное [оружие|броня|кольцо]',
-        'редкое [оружие|броня|кольцо]',
-        'очень редкое [оружие|броня|кольцо]',
+        'предмет [оружие|броня|кольцо] [xN]',
+        'необычное [оружие|броня|кольцо] [xN]',
+        'редкое [оружие|броня|кольцо] [xN]',
+        'очень редкое [оружие|броня|кольцо] [xN]',
         'слот [оружие|броня|кольца] [xN]',
         'префикс [оружие|броня|кольца] [xN]',
         'суффикс [оружие|броня|кольца] [xN]',
@@ -70,6 +70,9 @@ class CommandWithTag(Command):
 
 
 class CommandWithTagXN(Command):
+    DELIM = '\n'
+    NUMERABLE = True
+
     def __init__(self, args: List[str]) -> None:
         super().__init__()
 
@@ -86,7 +89,11 @@ class CommandWithTagXN(Command):
             return self._run_one(ctx)
 
         result = [self._run_one(ctx) for _ in range(self._n)]
-        return '\n'.join(f'{i}. {m}' for i, m in enumerate(result, 1))
+
+        if self.NUMERABLE:
+            return self.DELIM.join(f'{i}. {m}' for i, m in enumerate(result, 1))
+
+        return self.DELIM.join(f'{m}' for m in result)
 
     def _run_one(self, ctx: business.Context) -> str:
         raise NotImplementedError()
@@ -132,6 +139,9 @@ class RarityItemCommand(Command):
 
 
 class ItemCommand(CommandWithTagXN):
+    DELIM = '\n\n'
+    NUMERABLE = False
+
     def _run_one(self, ctx: business.Context) -> str:
         slots_mapping = {
             types.RarityType.Uncommon: 2,
@@ -147,9 +157,12 @@ class ItemCommand(CommandWithTagXN):
         return f'{rarity}\n{slots_msg}'
 
 
-class CommandForItem(CommandWithTag):
-    def run(self, ctx: business.Context) -> str:
-        result = [business.roll_slot(ctx, self.tag) for _ in range(self._slots_count())]
+class CommandForItemWithRarity(CommandWithTagXN):
+    DELIM = '\n\n'
+    NUMERABLE = False
+
+    def _run_one(self, ctx: business.Context) -> str:
+        result = [business.roll_slot(ctx, self._tag) for _ in range(self._slots_count())]
         result.sort(key=lambda s: s.slot_type.value)
         return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
@@ -157,17 +170,17 @@ class CommandForItem(CommandWithTag):
         raise NotImplementedError()
 
 
-class UncommonItemCommand(CommandForItem):
+class UncommonItemCommand(CommandForItemWithRarity):
     def _slots_count(self) -> int:
         return 2
 
 
-class RareItemCommand(CommandForItem):
+class RareItemCommand(CommandForItemWithRarity):
     def _slots_count(self) -> int:
         return 3
 
 
-class VeryRareItemCommand(CommandForItem):
+class VeryRareItemCommand(CommandForItemWithRarity):
     def _slots_count(self) -> int:
         return 4
 
