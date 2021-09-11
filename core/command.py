@@ -21,6 +21,7 @@ class Command:
 
 
 class HelpCommand(Command):
+    VERSION = '0.0.1'
     COMMON_COMMANDS = [
         'префикс',
         'префикс оружие',
@@ -38,7 +39,7 @@ class HelpCommand(Command):
         msg = []
 
         if self._used_intentionally:
-            msg.append('Я создан для помощи в крафте предметов')
+            msg.append(f'Я создан для помощи в крафте предметов [version {self.VERSION}]')
         else:
             msg.append(f'Не понял тебя :(')
 
@@ -68,6 +69,15 @@ class SuffixCommand(Command):
 
     def run(self) -> str:
         return str(business.roll_suffix(self._tag))
+
+
+class SlotCommand(Command):
+    def __init__(self, tag: Optional[str] = None) -> None:
+        super().__init__()
+        self._tag = _parse_tag(tag)
+
+    def run(self) -> str:
+        return str(business.roll_slot(self._tag))
 
 
 COMMAND_PREFIX = '!'

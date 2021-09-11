@@ -1,11 +1,7 @@
-import dataclasses
+import enum
 import random
 
 from typing import List
-
-
-class LogicError(Exception):
-    pass
 
 
 class ItemTags:
@@ -30,10 +26,22 @@ class ItemTags:
         return bool(self._tags & other._tags)
 
 
-@dataclasses.dataclass()
+class SlotType(enum.Enum):
+    Prefix = enum.auto()
+    Suffix = enum.auto()
+    Implicit = enum.auto()
+
+
+class Slot:
+    def __init__(self, slot_type: SlotType, weight: int) -> None:
+        self.type = slot_type
+        self.weight = weight
+
+
 class Property:
-    name: str
-    value: str
+    def __init__(self, name: str, value: str) -> None:
+        self.name = name
+        self.value = value
 
     def __str__(self) -> str:
         return f'{self.name}: {self.value}'
