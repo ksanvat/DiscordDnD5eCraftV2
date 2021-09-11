@@ -2,7 +2,6 @@ import enum
 import random
 import uuid
 
-from typing import Any
 from typing import List
 
 
@@ -12,6 +11,7 @@ class ItemTags:
             universal: bool = False,
             weapon: bool = False,
             armor: bool = False,
+            jewellery: bool = False,
     ) -> None:
         self._universal = universal
 
@@ -20,6 +20,8 @@ class ItemTags:
             self._tags.add('Weapon')
         if armor:
             self._tags.add('Armor')
+        if jewellery:
+            self._tags.add('Jewellery')
 
     def matches(self, other: 'ItemTags') -> bool:
         if self._universal or other._universal:
