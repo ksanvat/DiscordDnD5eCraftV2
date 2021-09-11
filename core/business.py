@@ -51,16 +51,13 @@ def roll_implicit(ctx: Context, tags: types.ItemTags) -> types.Property:
 def roll_slot(ctx: Context, tags: types.ItemTags) -> types.Property:
     slot_type = _choose_weighted(db_slots.DATA)
 
-    if slot_type == types.SlotType.Prefix:
-        return roll_prefix(ctx, tags)
+    mapping = {
+        types.SlotType.Prefix: roll_prefix,
+        types.SlotType.Suffix: roll_suffix,
+        types.SlotType.Implicit: roll_implicit,
+    }
 
-    if slot_type == types.SlotType.Suffix:
-        return roll_suffix(ctx, tags)
-
-    if slot_type == types.SlotType.Implicit:
-        return roll_implicit(ctx, tags)
-
-    raise Exception('Unknown Slot Type')
+    return mapping[slot_type](ctx, tags)
 
 
 def roll_rarity(ctx: Context) -> types.RarityType:

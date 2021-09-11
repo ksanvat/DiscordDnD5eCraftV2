@@ -129,6 +129,16 @@ class RarityItemCommand(Command):
         result = [business.roll_rarity(ctx) for _ in range(self._n)]
         return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
+    @staticmethod
+    def _rarity_str(rarity_type: types.RarityType) -> str:
+        mapping = {
+            types.RarityType.Uncommon: 'Необычный',
+            types.RarityType.Rare: 'Редкий',
+            types.RarityType.VeryRare: 'Очень редкий',
+        }
+
+        return mapping[rarity_type]
+
 
 class CommandForItem(CommandWithTag):
     def run(self, ctx: business.Context) -> str:
