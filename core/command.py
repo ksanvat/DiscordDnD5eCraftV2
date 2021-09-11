@@ -19,8 +19,9 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.1'
+    VERSION = '0.11'
     COMMON_COMMANDS = [
+        'предмет [оружие|броня|кольцо]',
         'необычное [оружие|броня|кольцо]',
         'редкое [оружие|броня|кольцо]',
         'очень редкое [оружие|броня|кольцо]',
@@ -127,17 +128,23 @@ class RarityItemCommand(Command):
 
     def run(self, ctx: business.Context) -> str:
         result = [business.roll_rarity(ctx) for _ in range(self._n)]
-        return '\n'.join(f'{i}. {self._rarity_str(s)}' for i, s in enumerate(result, 1))
+        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
-    @staticmethod
-    def _rarity_str(rarity_type: types.RarityType) -> str:
-        mapping = {
-            types.RarityType.Uncommon: 'Необычный',
-            types.RarityType.Rare: 'Редкий',
-            types.RarityType.VeryRare: 'Очень редкий',
+
+class ItemCommand(CommandWithTag):
+    def run(self, ctx: business.Context) -> str:
+        rarity = business.roll_rarity(ctx)
+
+        slots_mapping = {
+            types.RarityType.Uncommon: 2,
+            types.RarityType.Rare: 3,
+            types.RarityType.VeryRare: 4,
         }
+        slots_count = slots_mapping[rarity]
 
-        return mapping[rarity_type]
+        slots = [business.roll_slot(ctx, self.tag) for _ in range(slots_count)]
+        slots_msg = '\n'.join(f'{i}. {s}' for i, s in enumerate(slots, 1))
+        return f'{rarity}\n{slots_msg}'
 
 
 class CommandForItem(CommandWithTag):
@@ -191,6 +198,7 @@ COMMAND_MAPPING = {
     'собственное свойство': ImplicitCommand,
     'слот': SlotCommand,
     'редкость': RarityItemCommand,
+    'предмет': ItemCommand,
     'необычный': UncommonItemCommand,
     'необычная': UncommonItemCommand,
     'необычное': UncommonItemCommand,

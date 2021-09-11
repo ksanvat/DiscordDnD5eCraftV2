@@ -47,6 +47,15 @@ class RarityType(enum.IntEnum):
     Rare = 200
     VeryRare = 300
 
+    def __str__(self) -> str:
+        mapping = {
+            self.Uncommon: 'Необычный',
+            self.Rare: 'Редкий',
+            self.VeryRare: 'Очень редкий',
+        }
+
+        return mapping[self]
+
 
 class Rarity:
     def __init__(self, rarity_type: RarityType, weight: int) -> None:
