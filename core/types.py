@@ -36,7 +36,7 @@ class Property:
     value: str
 
     def __str__(self) -> str:
-        return f'{self.name} {self.value}'
+        return f'{self.name}: {self.value}'
 
 
 class Group:

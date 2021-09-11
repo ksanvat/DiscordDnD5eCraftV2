@@ -62,8 +62,12 @@ class PrefixCommand(Command):
 
 
 class SuffixCommand(Command):
+    def __init__(self, tag: Optional[str] = None) -> None:
+        super().__init__()
+        self._tag = _parse_tag(tag)
+
     def run(self) -> str:
-        return '<SuffixCommand>'
+        return str(business.roll_suffix(self._tag))
 
 
 COMMAND_PREFIX = '!'
