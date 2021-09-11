@@ -1,5 +1,6 @@
 import random
 
+from typing import Any
 from typing import List
 from typing import Set
 
@@ -7,6 +8,7 @@ from core import types
 from core.db import implicits as db_implicits
 from core.db import prefixes as db_prefixes
 from core.db import slots as db_slots
+from core.db import rarity as db_rarity
 from core.db import suffixes as db_suffixes
 
 
@@ -47,7 +49,7 @@ def roll_implicit(ctx: Context, tags: types.ItemTags) -> types.Property:
 
 
 def roll_slot(ctx: Context, tags: types.ItemTags) -> types.Property:
-    slot_type = _choice_slot(db_slots.DATA)
+    slot_type = _choose_weighted(db_slots.DATA)
 
     if slot_type == types.SlotType.Prefix:
         return roll_prefix(ctx, tags)
@@ -61,18 +63,22 @@ def roll_slot(ctx: Context, tags: types.ItemTags) -> types.Property:
     raise Exception('Unknown Slot Type')
 
 
+def roll_rarity(ctx: Context) -> types.RarityType:
+    return _choose_weighted(db_rarity.DATA)
+
+
 def _matched_groups(groups: List[types.Group], tags: types.ItemTags, skip_id: Set[str]) -> List[types.Group]:
     return [g for g in groups if g.matches(tags) and g.internal_id not in skip_id]
 
 
-def _choice_slot(slots: List[types.Slot]) -> types.SlotType:
-    total_weight = sum(s.weight for s in slots)
+def _choose_weighted(collection: List) -> Any:
+    total_weight = sum(s.weight for s in collection)
 
     chosen_value = random.randint(1, total_weight)
     current_value = 0
-    for slot in slots:
-        current_value += slot.weight
+    for item in collection:
+        current_value += item.weight
         if chosen_value <= current_value:
-            return slot.type
+            return item.type
 
-    raise Exception('Choice Slot Error')
+    raise Exception('Choose Weighted Error')

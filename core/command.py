@@ -28,6 +28,7 @@ class HelpCommand(Command):
         'префикс [оружие|броня] [xN]',
         'суффикс [оружие|броня] [xN]',
         'собственное свойство [оружия|брони] [xN]',
+        'редкость [xN]',
         'ресурсы',
     ]
 
@@ -114,6 +115,21 @@ class SlotCommand(CommandWithTagXN):
         return str(business.roll_slot(ctx, self._tag))
 
 
+class RarityItemCommand(Command):
+    def __init__(self, args: List[str]) -> None:
+        super().__init__()
+
+        try:
+            self._n = _parse_xn(args[0])
+            args.pop(0)
+        except:
+            self._n = 1
+
+    def run(self, ctx: business.Context) -> str:
+        result = [business.roll_rarity(ctx) for _ in range(self._n)]
+        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
+
+
 class CommandForItem(CommandWithTag):
     def run(self, ctx: business.Context) -> str:
         result = [business.roll_slot(ctx, self.tag) for _ in range(self._slots_count())]
@@ -164,6 +180,7 @@ COMMAND_MAPPING = {
     'собственное': ImplicitCommand,
     'собственное свойство': ImplicitCommand,
     'слот': SlotCommand,
+    'редкость': RarityItemCommand,
     'необычный': UncommonItemCommand,
     'необычная': UncommonItemCommand,
     'необычное': UncommonItemCommand,

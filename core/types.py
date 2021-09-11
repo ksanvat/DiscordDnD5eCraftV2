@@ -42,6 +42,18 @@ class Slot:
         self.weight = weight
 
 
+class RarityType(enum.IntEnum):
+    Uncommon = 100
+    Rare = 200
+    VeryRare = 300
+
+
+class Rarity:
+    def __init__(self, rarity_type: RarityType, weight: int) -> None:
+        self.type = rarity_type
+        self.weight = weight
+
+
 class Property:
     def __init__(self, name: str, value: str, slot_type: SlotType) -> None:
         self.name = name
