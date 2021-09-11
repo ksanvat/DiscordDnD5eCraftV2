@@ -19,7 +19,7 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.12'
+    VERSION = '0.14'
     COMMON_COMMANDS = [
         'предмет [оружие|броня|кольцо]',
         'необычное [оружие|броня|кольцо]',
@@ -131,18 +131,18 @@ class RarityItemCommand(Command):
         return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
 
-class ItemCommand(CommandWithTag):
-    def run(self, ctx: business.Context) -> str:
-        rarity = business.roll_rarity(ctx)
-
+class ItemCommand(CommandWithTagXN):
+    def _run_one(self, ctx: business.Context) -> str:
         slots_mapping = {
             types.RarityType.Uncommon: 2,
             types.RarityType.Rare: 3,
             types.RarityType.VeryRare: 4,
         }
+
+        rarity = business.roll_rarity(ctx)
         slots_count = slots_mapping[rarity]
 
-        slots = [business.roll_slot(ctx, self.tag) for _ in range(slots_count)]
+        slots = [business.roll_slot(ctx, self._tag) for _ in range(slots_count)]
         slots_msg = '\n'.join(f'{i}. {s}' for i, s in enumerate(slots, 1))
         return f'{rarity}\n{slots_msg}'
 
