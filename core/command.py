@@ -3,9 +3,7 @@ from typing import Optional
 from core import business
 from core import types
 
-
-class NotABotCommand(Exception):
-    pass
+from typing import List
 
 
 class ParseError(Exception):
@@ -26,10 +24,10 @@ class HelpCommand(Command):
         'необычное [оружие|броня]',
         'редкое [оружие|броня]',
         'очень редкое [оружие|броня]',
-        'слот [оружие|броня]',
-        'префикс [оружие|броня]',
-        'суффикс [оружие|броня]',
-        'собственное свойство [оружия|брони]',
+        'слот [оружие|броня] [xN]',
+        'префикс [оружие|броня] [xN]',
+        'суффикс [оружие|броня] [xN]',
+        'собственное свойство [оружия|брони] [xN]',
         'ресурсы',
     ]
 
@@ -56,32 +54,60 @@ class HelpCommand(Command):
 
 
 class CommandWithTag(Command):
-    def __init__(self, tag: Optional[str] = None) -> None:
+    def __init__(self, args: List[str]) -> None:
         super().__init__()
-        self._tag = _parse_tag(tag)
+
+        try:
+            self.tag = _parse_tag(args[0])
+            args.pop(0)
+        except:
+            self.tag = types.ItemTags(universal=True)
 
     def run(self) -> str:
         raise NotImplementedError()
 
 
-class PrefixCommand(CommandWithTag):
+class CommandWithTagXN(Command):
+    def __init__(self, args: List[str]) -> None:
+        super().__init__()
+
+        self._cmd_with_tag = CommandWithTag(args)
+
+        try:
+            self._n = _parse_xn(args[0])
+            args.pop(0)
+        except:
+            self._n = 1
+
     def run(self) -> str:
-        return str(business.roll_prefix(self._tag))
+        if self._n == 1:
+            return self._cmd_with_tag.run()
+
+        result = [self._cmd_with_tag.run() for _ in range(self._n)]
+        return '\n'.join(f'{i}. {m}' for i, m in enumerate(result, 1))
+
+    def _run_one(self) -> str:
+        raise NotImplementedError()
 
 
-class SuffixCommand(CommandWithTag):
-    def run(self) -> str:
-        return str(business.roll_suffix(self._tag))
+class PrefixCommand(CommandWithTagXN):
+    def _run_one(self) -> str:
+        return str(business.roll_prefix(self._cmd_with_tag.tag))
 
 
-class ImplicitCommand(CommandWithTag):
-    def run(self) -> str:
-        return str(business.roll_implicit(self._tag))
+class SuffixCommand(CommandWithTagXN):
+    def _run_one(self) -> str:
+        return str(business.roll_suffix(self._cmd_with_tag.tag))
+
+
+class ImplicitCommand(CommandWithTagXN):
+    def _run_one(self) -> str:
+        return str(business.roll_implicit(self._cmd_with_tag.tag))
 
 
 class SlotCommand(CommandWithTag):
     def run(self) -> str:
-        return str(business.roll_slot(self._tag))
+        return str(business.roll_slot(self.tag))
 
 
 class CommandForItem(CommandWithTag):
@@ -89,7 +115,7 @@ class CommandForItem(CommandWithTag):
         result = []
 
         for _ in range(self._slots_count()):
-            result.append(business.roll_slot(self._tag))
+            result.append(business.roll_slot(self.tag))
 
         result.sort(key=lambda s: s.slot_type.value)
 
@@ -169,7 +195,11 @@ def _create_cmd(cmd: str) -> Command:
         if cmd in COMMAND_MAPPING:
             cls = COMMAND_MAPPING[cmd]
             try:
-                return cls(*possible_args)
+                command = cls(possible_args)
+                if possible_args:
+                    return HelpCommand(used_intentionally=False)
+
+                return command
             except:
                 return HelpCommand(used_intentionally=False)
 
@@ -179,10 +209,7 @@ def _create_cmd(cmd: str) -> Command:
     return HelpCommand(used_intentionally=False)
 
 
-def _parse_tag(tag: Optional[str]) -> types.ItemTags:
-    if tag is None:
-        return types.ItemTags(universal=True)
-
+def _parse_tag(tag: str) -> types.ItemTags:
     if tag in {'оружие', 'оружия'}:
         return types.ItemTags(weapon=True)
 
@@ -190,3 +217,14 @@ def _parse_tag(tag: Optional[str]) -> types.ItemTags:
         return types.ItemTags(armor=True)
 
     raise ParseError()
+
+
+def _parse_xn(xn: str) -> int:
+    if not xn.startswith('x'):
+        raise ParseError()
+
+    n = int(xn[1:])
+    if n <= 0:
+        raise ParseError()
+
+    return n
