@@ -2,6 +2,8 @@ import os
 
 import discord
 
+from core import command
+
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -14,7 +16,12 @@ class Client(discord.Client):
         if message.author == self.user:
             return
 
-        await message.channel.send(f'Echo "{message.content}"')
+        try:
+            cmd = command.parse(message.content)
+            answer = cmd.run()
+            await message.reply(answer)
+        except:
+            await message.reply('Я сломался(')
 
 
 if __name__ == '__main__':
