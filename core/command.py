@@ -157,6 +157,8 @@ class ItemCommand(CommandWithTagXN):
         slots_count = slots_mapping[rarity]
 
         slots = [business.roll_slot(ctx, self._tag) for _ in range(slots_count)]
+        slots.sort(key=lambda s: s.slot_type.value)
+
         slots_msg = '\n'.join(f'{i}. {s}' for i, s in enumerate(slots, 1))
         return f'{rarity}\n{slots_msg}'
 
