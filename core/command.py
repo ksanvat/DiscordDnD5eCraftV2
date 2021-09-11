@@ -21,27 +21,30 @@ class Command:
 class HelpCommand(Command):
     VERSION = '0.17'
     COMMON_COMMANDS = [
-        'предмет [оружие|броня|кольцо] [xN]',
-        'необычное [оружие|броня|кольцо] [xN]',
-        'редкое [оружие|броня|кольцо] [xN]',
-        'очень редкое [оружие|броня|кольцо] [xN]',
-        'слот [оружие|броня|кольца] [xN]',
-        'префикс [оружие|броня|кольца] [xN]',
-        'суффикс [оружие|броня|кольца] [xN]',
-        'собственное свойство [оружия|брони|кольца] [xN]',
+        'предмет оружие|броня|кольцо [xN]',
+        'необычное оружие|броня|кольцо [xN]',
+        'редкое оружие|броня|кольцо [xN]',
+        'очень редкое оружие|броня|кольцо [xN]',
+        'слот оружие|броня|кольца [xN]',
+        'префикс оружие|броня|кольца [xN]',
+        'суффикс оружие|броня|кольца [xN]',
+        'собственное свойство оружия|брони|кольца [xN]',
         'редкость [xN]',
         'ресурсы',
     ]
 
-    def __init__(self, *, used_intentionally: bool) -> None:
+    def __init__(self, *, used_intentionally: bool, msg: Optional[str] = False) -> None:
         super().__init__()
         self._used_intentionally = used_intentionally
+        self._msg = msg
 
     def run(self, ctx: business.Context) -> str:
         msg = []
 
         if self._used_intentionally:
             msg.append(f'Я создан для помощи в крафте предметов [version {self.VERSION}]')
+        elif self._msg:
+            msg.append(self._msg)
         else:
             msg.append(f'Не понял тебя :(')
 
@@ -63,7 +66,7 @@ class CommandWithTag(Command):
             self.tag = _parse_tag(args[0])
             args.pop(0)
         except:
-            self.tag = types.ItemTags(universal=True)
+            raise ParseError('Нужно указать тип предмета: оружие, броня или кольцо')
 
     def run(self, ctx: business.Context) -> str:
         raise NotImplementedError()
@@ -250,6 +253,8 @@ def _create_cmd(cmd: str) -> Command:
                     return HelpCommand(used_intentionally=False)
 
                 return command
+            except ParseError as exc:
+                return HelpCommand(used_intentionally=False, msg=str(exc))
             except:
                 return HelpCommand(used_intentionally=False)
 
