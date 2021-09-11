@@ -86,7 +86,7 @@ class CommandForItem(CommandWithTag):
 
         result.sort(key=lambda s: s.slot_type.value)
 
-        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result))
+        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
     def _slots_count(self) -> int:
         raise NotImplementedError()
