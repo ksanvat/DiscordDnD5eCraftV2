@@ -21,8 +21,11 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.0.1'
+    VERSION = '0.0.2'
     COMMON_COMMANDS = [
+        'необычное [оружие|броня]',
+        'редкое [оружие|броня]',
+        'очень редкое [оружие|броня]',
         'слот [оружие|броня]',
         'префикс [оружие|броня]',
         'суффикс [оружие|броня]',
@@ -50,31 +53,56 @@ class HelpCommand(Command):
         return '\n'.join(msg)
 
 
-class PrefixCommand(Command):
+class CommandWithTag(Command):
     def __init__(self, tag: Optional[str] = None) -> None:
         super().__init__()
         self._tag = _parse_tag(tag)
 
+    def run(self) -> str:
+        raise NotImplementedError()
+
+
+class PrefixCommand(CommandWithTag):
     def run(self) -> str:
         return str(business.roll_prefix(self._tag))
 
 
-class SuffixCommand(Command):
-    def __init__(self, tag: Optional[str] = None) -> None:
-        super().__init__()
-        self._tag = _parse_tag(tag)
-
+class SuffixCommand(CommandWithTag):
     def run(self) -> str:
         return str(business.roll_suffix(self._tag))
 
 
-class SlotCommand(Command):
-    def __init__(self, tag: Optional[str] = None) -> None:
-        super().__init__()
-        self._tag = _parse_tag(tag)
-
+class SlotCommand(CommandWithTag):
     def run(self) -> str:
         return str(business.roll_slot(self._tag))
+
+
+class CommandForItem(CommandWithTag):
+    SLOTS = 0
+
+    def run(self) -> str:
+        if not self.SLOTS:
+            raise Exception('Slots Count Error')
+
+        result = []
+
+        for i in range(2):
+            slot = business.roll_slot(self._tag)
+            result.append(f'{i+1}. {slot}')
+
+        return '\n'.join(result)
+
+
+class UncommonItemCommand(CommandForItem):
+    SLOTS = 2
+
+
+class RareItemCommand(CommandForItem):
+    SLOTS = 3
+
+
+class VeryRareItemCommand(CommandForItem):
+    SLOTS = 4
 
 
 COMMAND_PREFIX = '!'
@@ -82,6 +110,15 @@ COMMAND_MAPPING = {
     'префикс': PrefixCommand,
     'суффикс': SuffixCommand,
     'слот': SlotCommand,
+    'необычный': UncommonItemCommand,
+    'необычная': UncommonItemCommand,
+    'необычное': UncommonItemCommand,
+    'редкий': RareItemCommand,
+    'редкая': RareItemCommand,
+    'редкое': RareItemCommand,
+    'очень редкий': VeryRareItemCommand,
+    'очень редкая': VeryRareItemCommand,
+    'очень редкое': VeryRareItemCommand,
 }
 
 
