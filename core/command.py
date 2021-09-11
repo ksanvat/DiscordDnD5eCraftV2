@@ -19,6 +19,8 @@ class Command:
 
 class HelpCommand(Command):
     COMMON_COMMANDS = [
+        'префикс',
+        'суффикс',
     ]
 
     def __init__(self, *, intentional_usage: bool) -> None:
