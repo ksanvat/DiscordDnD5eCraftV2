@@ -127,7 +127,7 @@ class RarityItemCommand(Command):
 
     def run(self, ctx: business.Context) -> str:
         result = [business.roll_rarity(ctx) for _ in range(self._n)]
-        return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
+        return '\n'.join(f'{i}. {self._rarity_str(s)}' for i, s in enumerate(result, 1))
 
     @staticmethod
     def _rarity_str(rarity_type: types.RarityType) -> str:
