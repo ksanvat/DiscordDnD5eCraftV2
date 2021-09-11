@@ -19,7 +19,7 @@ class Command:
 
 
 class HelpCommand(Command):
-    VERSION = '0.0.3'
+    VERSION = '0.0.4'
     COMMON_COMMANDS = [
         'необычное [оружие|броня]',
         'редкое [оружие|броня]',
@@ -81,9 +81,9 @@ class CommandWithTagXN(Command):
 
     def run(self) -> str:
         if self._n == 1:
-            return self._cmd_with_tag.run()
+            return self._run_one()
 
-        result = [self._cmd_with_tag.run() for _ in range(self._n)]
+        result = [self._run_one() for _ in range(self._n)]
         return '\n'.join(f'{i}. {m}' for i, m in enumerate(result, 1))
 
     def _run_one(self) -> str:
@@ -112,13 +112,8 @@ class SlotCommand(CommandWithTag):
 
 class CommandForItem(CommandWithTag):
     def run(self) -> str:
-        result = []
-
-        for _ in range(self._slots_count()):
-            result.append(business.roll_slot(self.tag))
-
+        result = [business.roll_slot(self.tag) for _ in range(self._slots_count())]
         result.sort(key=lambda s: s.slot_type.value)
-
         return '\n'.join(f'{i}. {s}' for i, s in enumerate(result, 1))
 
     def _slots_count(self) -> int:
