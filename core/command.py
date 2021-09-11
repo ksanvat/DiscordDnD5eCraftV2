@@ -57,8 +57,8 @@ class SuffixCommand(Command):
 
 COMMAND_PREFIX = '!'
 COMMAND_MAPPING = {
-    'префикс',
-    'суффикс',
+    'префикс': PrefixCommand,
+    'суффикс': SuffixCommand,
 }
 
 
